@@ -1,0 +1,16 @@
+# Python bytecode
+*.pyc
+__pycache__/
+
+# Virtual environment
+env/
+*.env
+
+# Logs
+*.log
+
+# Docs
+docs/
+
+# Docker files (if you want to ignore local Docker build artifacts)
+.docker/

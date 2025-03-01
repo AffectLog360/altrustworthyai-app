@@ -1,0 +1,8 @@
+altrustworthyai
+altrustworthyai-api
+flask
+numpy
+pandas
+python-dotenv
+scikit-learn
+
