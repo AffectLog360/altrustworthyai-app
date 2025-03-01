@@ -7,7 +7,7 @@
 - Flag anomalies and potential bias via detailed fairness metrics.
 - Support continuous model monitoring and auditability.
 
-The application is fully aligned with the approved design document, which defines ALT-AI as a toolbox that offers both global (overall model behavior) and local (individual prediction) explanations. These explanations empower data scientists, auditors, and compliance officers to assess potential biases—especially those linked to protected attributes (e.g., age, gender, race)—and ensure compliance with regulations such as GDPR and the evolving EU AI Act.
+The application is fully aligned with the design document, which defines ALT-AI as a toolbox that offers both global (overall model behavior) and local (individual prediction) explanations. These explanations empower data scientists, auditors, and compliance officers to assess potential biases—especially those linked to protected attributes (e.g., age, gender, race)—and ensure compliance with regulations such as GDPR and the evolving EU AI Act.
 
 ---
 
@@ -15,14 +15,10 @@ The application is fully aligned with the approved design document, which define
 
 ## Prerequisites
 
-- **Design Document:**  
+- **Test Definitions within Design Document:**  
   *AffectLog's Trustworthy AI (ALT-AI) - Design Document*  
   [View Design Document](https://github.com/Prometheus-X-association/t-ai-affectlog/blob/main/docs/design-document.md#test-specification)  
   *This document details the ALT-AI architecture, transparency and fairness features, and explains how global and local explanations support AI risk assessment by quantifying feature importance and highlighting potential biases.*
-
-- **Test Definitions:**  
-  [ALT-AI Test Definitions](https://github.com/Prometheus-X-association/t-ai-affectlog/blob/main/docs/design-document.md#test-specification)  
-  *Outlines scenarios for model explanation, fairness evaluation, and regulatory compliance.*
 
 - **Containerization Files:**  
   - Dockerfile  
