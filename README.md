@@ -1,6 +1,6 @@
 # ALTrustworthyAI Application Documentation
 
-## ALTrustworthyAI Application Overview
+## Overview
 
 **ALTrustworthyAI Application** is engineered to deliver robust AI risk assessment by providing interpretable model predictions and global explanations using the Census Adult dataset. By quantifying feature importance and identifying key drivers of model behavior, the application enables stakeholders to:
 - Translate complex model decisions into transparent, actionable insights.
