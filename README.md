@@ -77,7 +77,7 @@ cd altrustworthyai-app
 1. **Build the Container Image:**
 
    ```bash
-   docker-compose build
+   docker compose build
    ```
 
 ---
@@ -107,7 +107,7 @@ cd altrustworthyai-app
 - **Run the Application Container:**
 
   ```bash
-  docker-compose up app
+  docker compose up app
   ```
 
 ---
