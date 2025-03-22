@@ -1,21 +1,18 @@
-# Use an official lightweight Python image.
+# Use an official Python 3.9 slim image (or any version you prefer)
 FROM python:3.9-slim
 
-# Set the working directory.
+# Create an app directory and set it as working dir
 WORKDIR /app
 
-# Copy and install dependencies.
+# Copy requirements and install dependencies
 COPY requirements.txt .
 RUN pip install --upgrade pip && pip install -r requirements.txt
 
-# Copy the entire code.
+# Copy the entire code into the container
 COPY . .
 
-# Expose port 5002.
+# Expose the application port
 EXPOSE 5002
 
-# Set the dynamic lookup flag.
-ENV FORCE_DYNAMIC_LIBEBM=true
-
-# Start the application.
+# Command to run the application
 CMD ["python", "app.py"]

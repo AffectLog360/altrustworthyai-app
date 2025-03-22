@@ -1,16 +1,11 @@
 version: "3.8"
+
 services:
   app:
     build: .
+    container_name: altrustworthyai_app
     ports:
       - "5002:5002"
+    # Optional environment variables
     environment:
-      - FORCE_DYNAMIC_LIBEBM=true
-    container_name: altrustworthyai_app
-
-  tests:
-    build: .
-    command: ["python", "-m", "unittest", "discover", "-s", ".", "-p", "test_app.py"]
-    environment:
-      - FORCE_DYNAMIC_LIBEBM=true
-    container_name: altrustworthyai_tests
+      - PYTHONUNBUFFERED=1
