@@ -13,11 +13,11 @@
 
 ### 1. Set up the Component
 - Ensure Python 3.9+ or Docker is installed.
-- Run `pip install -r requirements.txt` or `docker-compose build`.
+- Run `pip install -r requirements.txt` or `docker compose build`.
 
 ### 2. Run the App
 - **Local**: `python app.py` (listening on port 5002).
-- **Docker**: `docker-compose up app`.
+- **Docker**: `docker compose up app`.
 
 ### 3. Execute the Test Cases
 - **Test #1**:  
