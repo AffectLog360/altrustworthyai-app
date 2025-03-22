@@ -72,14 +72,6 @@ cd altrustworthyai-app
    make install
    ```
 
-### Container Build (For Linux VM Deployment)
-
-1. **Build the Container Image:**
-
-   ```bash
-   docker compose build
-   ```
-
 ---
 
 ## Run Commands
@@ -101,14 +93,6 @@ cd altrustworthyai-app
   The application runs on port **5002** and can be accessed via:
   - [http://127.0.0.1:5002](http://127.0.0.1:5002)
   - [http://[your-local-IP]:5002](http://[your-local-IP]:5002)
-
-### Container Run (Inside a Linux VM via UTM)
-
-- **Run the Application Container:**
-
-  ```bash
-  docker compose up app
-  ```
 
 ---
 
