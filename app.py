@@ -22,7 +22,6 @@ X_train = X_train[:100]
 y_train = y_train[:100]
 
 logger.info("🔹 Training model with reduced dataset...")
-# Use the alias for interpret's EBM
 model = ALTrustworthyEBM()
 model.fit(X_train, y_train)
 logger.info("✅ Model training completed successfully.")
