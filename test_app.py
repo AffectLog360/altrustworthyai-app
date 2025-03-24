@@ -6,11 +6,13 @@ import glob
 import platform
 import logging
 import importlib
+import unittest
+import json
+
+from altrustworthyai.utils._native import Native
 
 logging.basicConfig(level=logging.DEBUG)
 logger = logging.getLogger(__name__)
-
-from altrustworthyai.utils._native import Native
 
 def load_libebm():
     """
@@ -48,31 +50,35 @@ def load_libebm():
     logger.info(f"Selected libebm library: {chosen_lib}")
     return chosen_lib
 
+# Inject our custom library loader
 Native._get_ebm_lib_path = staticmethod(lambda debug=True: load_libebm())
 
-# Safely import the Flask application module.
+# Import the Flask application now that EBM path is set
 app_module = importlib.import_module("app")
 flask_app = app_module.app
-
-import unittest
-import json
 
 class AppTestCase(unittest.TestCase):
     def setUp(self):
         self.client = flask_app.test_client()
         self.client.testing = True
 
-    def test_predict_endpoint(self):
+    def test_predict_endpoint_14_features(self):
         """
-        Tests the /predict endpoint.
-        This endpoint should return a valid binary income prediction after automatically
-        adjusting the input (if the complete row including the target is provided).
-        This test verifies that the prediction process supports fairness assessment by ensuring
-        that the model operates on the expected feature set.
+        Test Case: Submitting exactly 14 features should return a single prediction item.
+        Prerequisites:
+        - The app is running with a loaded EBM model.
+        Inputs:
+        - A JSON payload containing 14 features (no target).
+        Expected Outcome:
+        - Status code 200, JSON with key 'prediction' containing exactly one element.
         """
-        # Provide 14 features (target is not included).
-        payload = {"features": [30, "State-gov", 141297, "Bachelors", 13, "Married-civ-spouse",
-                                 "Prof-specialty", "Husband", "Asian-Pac-Islander", "Male", 0, 0, 40, "India"]}
+        payload = {
+            "features": [
+                30, "State-gov", 141297, "Bachelors", 13,
+                "Married-civ-spouse", "Prof-specialty", "Husband",
+                "Asian-Pac-Islander", "Male", 0, 0, 40, "India"
+            ]
+        }
         response = self.client.post("/predict", json=payload)
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
@@ -80,12 +86,42 @@ class AppTestCase(unittest.TestCase):
         self.assertIsInstance(data["prediction"], list)
         self.assertEqual(len(data["prediction"]), 1)
 
+    def test_predict_endpoint_15_features(self):
+        """
+        Test Case: Submitting 15 features (including target) should discard the 15th and log a warning.
+        """
+        payload = {
+            "features": [
+                30, "State-gov", 141297, "Bachelors", 13,
+                "Married-civ-spouse", "Prof-specialty", "Husband",
+                "Asian-Pac-Islander", "Male", 0, 0, 40, "India", ">50K"
+            ]
+        }
+
+        # Listen to the logger in app.py (assumed to be named "app")
+        with self.assertLogs("app", level="WARNING") as log_cm:
+            response = self.client.post("/predict", json=payload)
+            self.assertEqual(response.status_code, 200)
+            data = response.get_json()
+            self.assertIn("prediction", data)
+            self.assertIsInstance(data["prediction"], list)
+            self.assertEqual(len(data["prediction"]), 1)
+
+        # Confirm the warning is in the logs
+        found_warning = any("Received 15 features; assuming last value is the target" in message
+                            for message in log_cm.output)
+        self.assertTrue(found_warning, "Expected warning log message not found.")
+
     def test_explain_endpoint(self):
         """
-        Tests the /explain endpoint.
-        This endpoint should return a global explanation that includes feature names and importance scores.
-        The explanation output is used to evaluate the influence of protected attributes (e.g., age, race, sex)
-        on the model’s decisions, which is critical for assessing fairness.
+        Test Case: /explain endpoint should return a global explanation
+        with keys 'names' and 'scores'.
+        Prerequisites:
+        - The app is running with a loaded EBM model.
+        Inputs:
+        - No JSON payload (GET request).
+        Expected Outcome:
+        - Status code 200, JSON 'explanation' object containing lists 'names' and 'scores'.
         """
         response = self.client.get("/explain")
         self.assertEqual(response.status_code, 200)
