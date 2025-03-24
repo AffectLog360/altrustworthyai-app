@@ -38,7 +38,6 @@ For validation, clone the ALTrustworthyAI Application repository:
 
 ```bash
 git clone https://github.com/AffectLog360/altrustworthyai-app.git
-cd altrustworthyai-app
 ```
 
 ## Build Commands
@@ -55,6 +54,7 @@ cd altrustworthyai-app
 2. **Install Dependencies:**
 
    ```bash
+   cd altrustworthyai-app
    pip install --upgrade pip && pip install -r requirements.txt
    ```
 
