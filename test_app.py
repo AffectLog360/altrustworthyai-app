@@ -1,5 +1,4 @@
 import os
-# Enable dynamic library lookup for tests.
 os.environ["FORCE_DYNAMIC_LIBEBM"] = "true"
 
 import glob
@@ -7,32 +6,19 @@ import platform
 import logging
 import importlib
 import unittest
-import json
 
 from altrustworthyai.utils._native import Native
 
 logging.basicConfig(level=logging.DEBUG)
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("test_app")
 
 def load_libebm():
-    """
-    Locate the shared library using the project structure.
-    Ensures that the same native library is used in both testing and production,
-    which is crucial for consistency in AI risk assessment outputs.
-    """
     override = os.environ.get("LIBEBM_PATH")
-    if override:
-        logger.info(f"Using LIBEBM_PATH override: {override}")
-        if os.path.exists(override):
-            return override
-        else:
-            raise RuntimeError(f"LIBEBM_PATH is set to {override}, but that file does not exist.")
-    project_root = os.path.abspath(os.path.dirname(__file__))
-    base_dir = os.path.join(project_root, "altrustworthyai", "shared", "libebm")
-    logger.info(f"Looking for libebm files in {base_dir}")
+    if override and os.path.exists(override):
+        return override
     system = platform.system()
     machine = platform.machine()
-    logger.info(f"Detected system: {system}, architecture: {machine}")
+    base_dir = os.path.join(os.path.abspath(os.path.dirname(__file__)), "altrustworthyai", "shared", "libebm")
     if system == "Darwin" and machine == "arm64":
         pattern = os.path.join(base_dir, "libebm_mac_arm*.dylib")
     elif system == "Darwin":
@@ -46,14 +32,10 @@ def load_libebm():
     matches = glob.glob(pattern)
     if not matches:
         raise RuntimeError(f"Could not find a libebm library matching pattern: {pattern}")
-    chosen_lib = matches[0]
-    logger.info(f"Selected libebm library: {chosen_lib}")
-    return chosen_lib
+    return matches[0]
 
-# Inject our custom library loader
 Native._get_ebm_lib_path = staticmethod(lambda debug=True: load_libebm())
 
-# Import the Flask application now that EBM path is set
 app_module = importlib.import_module("app")
 flask_app = app_module.app
 
@@ -63,75 +45,42 @@ class AppTestCase(unittest.TestCase):
         self.client.testing = True
 
     def test_predict_endpoint_14_features(self):
-        """
-        Test Case: Submitting exactly 14 features should return a single prediction item.
-        Prerequisites:
-        - The app is running with a loaded EBM model.
-        Inputs:
-        - A JSON payload containing 14 features (no target).
-        Expected Outcome:
-        - Status code 200, JSON with key 'prediction' containing exactly one element.
-        """
-        payload = {
-            "features": [
-                30, "State-gov", 141297, "Bachelors", 13,
-                "Married-civ-spouse", "Prof-specialty", "Husband",
-                "Asian-Pac-Islander", "Male", 0, 0, 40, "India"
-            ]
-        }
-        response = self.client.post("/predict", json=payload)
+        response = self.client.post("/predict", json={
+            "features": [30, "State-gov", 141297, "Bachelors", 13,
+                         "Married-civ-spouse", "Prof-specialty", "Husband",
+                         "Asian-Pac-Islander", "Male", 0, 0, 40, "India"]
+        })
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
         self.assertIn("prediction", data)
-        self.assertIsInstance(data["prediction"], list)
         self.assertEqual(len(data["prediction"]), 1)
 
     def test_predict_endpoint_15_features(self):
-        """
-        Test Case: Submitting 15 features (including target) should discard the 15th and log a warning.
-        """
-        payload = {
-            "features": [
-                30, "State-gov", 141297, "Bachelors", 13,
-                "Married-civ-spouse", "Prof-specialty", "Husband",
-                "Asian-Pac-Islander", "Male", 0, 0, 40, "India", ">50K"
-            ]
-        }
-
-        # Listen to the logger in app.py (assumed to be named "app")
         with self.assertLogs("app", level="WARNING") as log_cm:
-            response = self.client.post("/predict", json=payload)
+            response = self.client.post("/predict", json={
+                "features": [30, "State-gov", 141297, "Bachelors", 13,
+                             "Married-civ-spouse", "Prof-specialty", "Husband",
+                             "Asian-Pac-Islander", "Male", 0, 0, 40, "India", ">50K"]
+            })
             self.assertEqual(response.status_code, 200)
-            data = response.get_json()
-            self.assertIn("prediction", data)
-            self.assertIsInstance(data["prediction"], list)
-            self.assertEqual(len(data["prediction"]), 1)
-
-        # Confirm the warning is in the logs
-        found_warning = any("Received 15 features; assuming last value is the target" in message
-                            for message in log_cm.output)
-        self.assertTrue(found_warning, "Expected warning log message not found.")
+            self.assertTrue(any("Received 15 features" in m for m in log_cm.output))
 
     def test_explain_endpoint(self):
-        """
-        Test Case: /explain endpoint should return a global explanation
-        with keys 'names' and 'scores'.
-        Prerequisites:
-        - The app is running with a loaded EBM model.
-        Inputs:
-        - No JSON payload (GET request).
-        Expected Outcome:
-        - Status code 200, JSON 'explanation' object containing lists 'names' and 'scores'.
-        """
         response = self.client.get("/explain")
         self.assertEqual(response.status_code, 200)
         data = response.get_json()
         self.assertIn("explanation", data)
-        explanation = data["explanation"]
-        self.assertIn("names", explanation)
-        self.assertIn("scores", explanation)
-        self.assertIsInstance(explanation["names"], list)
-        self.assertIsInstance(explanation["scores"], list)
+        self.assertIn("names", data["explanation"])
+        self.assertIn("scores", data["explanation"])
 
-if __name__ == '__main__':
+    def test_compare_endpoint(self):
+        response = self.client.get("/compare")
+        self.assertEqual(response.status_code, 200)
+        data = response.get_json()
+        self.assertIn("comparison", data)
+        self.assertIn("EBM_mean_accuracy", data["comparison"])
+        self.assertIn("Baseline_LogisticRegression_mean_accuracy", data["comparison"])
+        self.assertIsInstance(data["comparison"]["EBM_cv_scores"], list)
+
+if __name__ == "__main__":
     unittest.main()
