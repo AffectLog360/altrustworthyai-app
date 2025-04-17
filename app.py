@@ -13,7 +13,7 @@ logger = logging.getLogger("app")
 
 # Initialize Flask app
 app = Flask(__name__)
-logger.info("🔹 Before creating dataset...")
+logger.info("Starting dataset preparation...")
 
 # Load dataset
 X_train, X_test, y_train, y_test = load_and_preprocess_data()
@@ -23,10 +23,10 @@ X_train_small = X_train[:100]
 y_train_small = y_train[:100]
 
 # Train EBM model
-logger.info("🔹 Training ExplainableBoostingClassifier...")
+logger.info("Training ExplainableBoostingClassifier...")
 model = ALTrustworthyEBM()
 model.fit(X_train_small, y_train_small)
-logger.info("✅ EBM training done.")
+logger.info("EBM training completed.")
 
 # Encode features for baseline model
 X_train_encoded = pd.get_dummies(X_train_small)
@@ -34,10 +34,10 @@ X_test_encoded = pd.get_dummies(X_test)
 X_test_encoded = X_test_encoded.reindex(columns=X_train_encoded.columns, fill_value=0)
 
 # Train baseline model
-logger.info("🔹 Training baseline LogisticRegression for /compare...")
+logger.info("Training baseline LogisticRegression for /compare...")
 baseline_model = LogisticRegression(max_iter=500)
 baseline_model.fit(X_train_encoded, y_train_small)
-logger.info("✅ Baseline model trained.")
+logger.info("Baseline model training completed.")
 
 @app.route("/predict", methods=["POST"])
 def predict():
@@ -54,18 +54,18 @@ def predict():
 def explain():
     explanation = model.explain_global()
     logger.debug("Global explanation generated successfully.")
-    logger.info("Fairness Assessment: Inspect protected attributes from explanation scores.")
+    logger.info("Global explanation contains feature importance information.")
     return jsonify({"explanation": explanation.data()})
 
 @app.route("/compare", methods=["GET"])
 def compare_models():
-    logger.info("🔎 Running model comparison with 5-fold cross-validation...")
+    logger.info("Running model comparison with 5-fold cross-validation...")
     ebm_scores = cross_val_score(model, X_train_small, y_train_small, cv=5, scoring="accuracy")
     baseline_scores = cross_val_score(baseline_model, X_train_encoded, y_train_small, cv=5, scoring="accuracy")
 
     ebm_mean = float(np.mean(ebm_scores))
     baseline_mean = float(np.mean(baseline_scores))
-    logger.info(f"✅ Model comparison complete. EBM accuracy: {ebm_mean:.4f}, LogisticRegression accuracy: {baseline_mean:.4f}")
+    logger.info(f"Model comparison complete. EBM accuracy: {ebm_mean:.4f}, LogisticRegression accuracy: {baseline_mean:.4f}")
 
     return jsonify({
         "comparison": {
