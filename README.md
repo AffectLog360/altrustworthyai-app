@@ -3,6 +3,7 @@
 ## Overview
 
 **ALTrustworthyAI Application** is engineered to deliver robust AI risk assessment by providing interpretable model predictions and global explanations using the Census Adult dataset. By quantifying feature importance and identifying key drivers of model behavior, the application enables stakeholders to:
+
 - Translate complex model decisions into transparent, actionable insights.
 - Flag anomalies and potential bias via detailed fairness metrics.
 - Support continuous model monitoring and auditability.
@@ -18,23 +19,21 @@ The application is fully aligned with the approved design document, which define
 - **Design Document:**  
   *AffectLog's Trustworthy AI (ALT-AI) - Design Document*  
   [View Design Document](https://github.com/Prometheus-X-association/t-ai-affectlog/blob/main/docs/design-document.md)  
-  *This document outlines the ALT-AI architecture and functionalities emphasizing transparency, interpretability, and fairness. It details how global and local explanations empower AI risk assessment by quantifying feature importance and highlighting potential biases.*
+  This document outlines the ALT-AI architecture and functionalities emphasizing transparency, interpretability, and fairness. It details how global and local explanations empower AI risk assessment by quantifying feature importance and highlighting potential biases.
 
 - **Test Definitions:**  
   [ALT-AI Test Definitions](https://github.com/Prometheus-X-association/t-ai-affectlog/blob/main/docs/design-document.md#test-specification)  
-  *These definitions cover detailed scenarios for model explanation, fairness evaluation, and compliance testing.*
+  These definitions cover detailed scenarios for model explanation, fairness evaluation, and compliance testing.
 
 - **Containerization Files:**  
   - Dockerfile  
   - docker-compose.yml  
-  *Note: Due to container instability on the Mac M4, local development is recommended using a Python virtual environment (venv). For production deployments, use a Linux VM (e.g., via UTM) to support high-performance AI risk assessment.*
+  Note: Due to container instability on the Mac M4, local development is recommended using a Python virtual environment (venv). For production deployments, use a Linux VM (e.g., via UTM) to support high-performance AI risk assessment.
 
 - **Disclaimer:**  
   The provided code and container files are for demonstration and validation purposes. Testers should ensure proper system configuration and follow security best practices when deploying in production environments.
 
 ## Cloning the Repository
-
-For validation, clone the ALTrustworthyAI Application repository:
 
 ```bash
 git clone https://github.com/AffectLog360/altrustworthyai-app.git
@@ -44,33 +43,31 @@ git clone https://github.com/AffectLog360/altrustworthyai-app.git
 
 ### Local Setup (Using Virtual Environment)
 
-1. **Create and Activate the Virtual Environment:**
+1. Create and activate the virtual environment:
 
-   ```bash
-   python3 -m venv env
-   source env/bin/activate
-   ```
+```bash
+python3 -m venv env
+source env/bin/activate
+```
 
-2. **Install Dependencies:**
+2. Install dependencies:
 
-   ```bash
-   cd altrustworthyai-app
-   pip install --upgrade pip && pip install -r requirements.txt
-   ```
+```bash
+cd altrustworthyai-app
+pip install --upgrade pip && pip install -r requirements.txt
+```
 
-3. **Build/Train the Application:**
+3. Build/Train the application:
 
-   Running the app triggers model training on a reduced dataset extracted from the Census Adult dataset. The ExplainableBoostingClassifier is trained on 13 features (target removed), enabling generation of transparent predictions and global explanations essential for AI risk assessment.
+```bash
+python app.py
+```
 
-   ```bash
-   python app.py
-   ```
+Or use the Makefile:
 
-   Alternatively, use the Makefile:
-
-   ```bash
-   make install
-   ```
+```bash
+make install
+```
 
 ---
 
@@ -78,91 +75,99 @@ git clone https://github.com/AffectLog360/altrustworthyai-app.git
 
 ### Local Run (venv)
 
-- **Start the Application:**
+Start the application:
 
-  ```bash
-  python app.py
-  ```
-  
-  Or via the Makefile:
+```bash
+python app.py
+```
 
-  ```bash
-  make run
-  ```
+Or via the Makefile:
 
-  The application runs on port **5002** and can be accessed via:
-  - [http://127.0.0.1:5002](http://127.0.0.1:5002)
-  - [http://[your-local-IP]:5002](http://[your-local-IP]:5002)
+```bash
+make run
+```
+
+The application runs on port 5002 and can be accessed via:
+
+- http://127.0.0.1:5002
+- http://[your-local-IP]:5002
 
 ---
 
 ## Demonstration of Working Endpoints
 
-The **ALTrustworthyAI Application** powers AI risk assessment by:
+### 1. POST /predict
 
-- **Explaining Model Behavior:**  
-  Global explanations quantify the influence of each feature on the prediction, helping auditors pinpoint potential biases.
+Generates a binary income prediction from an input feature vector. The model expects 14 features. If the payload includes a 15th value (target), it is automatically discarded.
 
-- **Ensuring Compliance:**  
-  Transparent explanations support compliance with regulations (e.g., GDPR, EU AI Act) by providing insight into the decision process.
+**Example Input:**
 
-- **Assessing Fairness:**  
-  Detailed feature importance scores and interaction metrics enable fairness analysis by revealing how protected attributes impact predictions.
+```bash
+curl -X POST http://localhost:5002/predict \
+  -H "Content-Type: application/json" \
+  -d '{"features": [30, "State-gov", 141297, "Bachelors", 13, "Married-civ-spouse", "Prof-specialty", "Husband", "Asian-Pac-Islander", "Male", 0, 0, 40, "India", ">50K"]}'
+```
 
-### 1. POST /predict Endpoint
+**Expected Output:**
 
-- **Function:**  
-  Generates a binary income prediction from an input feature vector. The model expects 14 features (all columns except the target). If the payload includes the target column (15 values), the application automatically removes the last value.
+```json
+{"prediction":[">50K"]}
+```
 
-- **Input Interpretation:**  
-  For example, if a payload is submitted as:  
-  ```bash
-  [30, "State-gov", 141297, "Bachelors", 13, "Married-civ-spouse", "Prof-specialty", "Husband", "Asian-Pac-Islander", "Male", 0, 0, 40, "India", ">50K"]
-  ```
-  The app removes the last element (">50K") and uses the first 14 values to generate a prediction.
+The model drops the 15th value and makes a prediction using the first 14 features.
 
-- **Example Input (via curl):**
+---
 
-  ```bash
-  curl -X POST http://localhost:5002/predict \
-    -H "Content-Type: application/json" \
-    -d '{"features": [30, "State-gov", 141297, "Bachelors", 13, "Married-civ-spouse", "Prof-specialty", "Husband", "Asian-Pac-Islander", "Male", 0, 0, 40, "India", ">50K"]}'
-  ```
+### 2. GET /explain
 
-- **Expected Output:**
+Returns a global explanation of the model including feature names and importance scores.
 
-  ```json
-  {"prediction":[">50K"]}
-  ```
+**Example Input:**
 
-  *Interpretation:*  
-  The prediction “>50K” indicates that the model classifies the individual’s income as above 50K based on the processed 14-feature vector. This outcome is critical for AI risk assessment, allowing auditors to evaluate whether the model is fair and unbiased.
+```bash
+curl -X GET http://localhost:5002/explain
+```
 
-### 2. GET /explain Endpoint
+**Expected Output:**
 
-- **Function:**  
-  Returns a global explanation of the model’s behavior, including a list of feature names and their corresponding importance scores.
-
-- **Example Command:**
-
-  ```bash
-  curl -X GET http://localhost:5002/explain
-  ```
-
-- **Expected Output:**
-
-  ```json
-  {
-    "explanation": {
-      "names": ["age", "workclass", "fnlwgt", "education", "education-num", "marital-status", "occupation", "relationship", "race", "sex", "capital-gain", "capital-loss", "hours-per-week", "native-country", "age & fnlwgt", "age & education", "age & education-num", "age & occupation", "age & relationship", "fnlwgt & education", "fnlwgt & education-num", "fnlwgt & occupation", "fnlwgt & capital-gain", "education & occupation", "education-num & occupation", "education-num & relationship", "education-num & hours-per-week"],
-      "scores": [0.10030026144908563, 0.03664318379769542, 0.24975116765419172, 0.1488645646615102, 0.20944761139323734, 0.42322504057033855, 0.12574066502535564, 0.5710896729423394, 0.011000480682267213, 0.33181536652471005, 0.2593678397039449, 0.07728615199109472, 0.16042266115260645, 0.028367282938769764, 0.07067067727366978, 0.040491572478995506, 0.08526054194318065, 0.057883992020588505, 0.1645009854216891, 0.09860817273793579, 0.047694463840421995, 0.10801773717623105, 0.11770528313943834, 0.03328933954001463, 0.021476448749105464, 0.20432854299840708, 0.06396007310885912],
-      "type": "univariate"
-    }
+```json
+{
+  "explanation": {
+    "names": ["age", "workclass", "fnlwgt", "education", "education-num", "marital-status", "occupation", "relationship", "race", "sex", "capital-gain", "capital-loss", "hours-per-week", "native-country", "age & fnlwgt", "age & education", "age & education-num", "age & occupation", "age & relationship", "fnlwgt & education", "fnlwgt & education-num", "fnlwgt & occupation", "fnlwgt & capital-gain", "education & occupation", "education-num & occupation", "education-num & relationship", "education-num & hours-per-week"],
+    "scores": [0.10030026144908563, 0.03664318379769542, 0.24975116765419172, 0.1488645646615102, 0.20944761139323734, 0.42322504057033855, 0.12574066502535564, 0.5710896729423394, 0.011000480682267213, 0.33181536652471005, 0.2593678397039449, 0.07728615199109472, 0.16042266115260645, 0.028367282938769764, 0.07067067727366978, 0.040491572478995506, 0.08526054194318065, 0.057883992020588505, 0.1645009854216891, 0.09860817273793579, 0.047694463840421995, 0.10801773717623105, 0.11770528313943834, 0.03328933954001463, 0.021476448749105464, 0.20432854299840708, 0.06396007310885912],
+    "type": "univariate"
   }
-  ```
+}
+```
 
-  *Interpretation:*  
-  The explanation output details the influence of each feature (and key interaction terms) on the prediction. Auditors can use these scores to assess if protected attributes (such as age, race, or sex) are exerting disproportionate influence, which would indicate potential fairness issues.
+This allows stakeholders to understand feature importance and interaction terms.
+
+---
+
+### 3. GET /compare
+
+Returns a model comparison between the ExplainableBoostingClassifier and a baseline LogisticRegression model, using 5-fold cross-validation.
+
+**Example Input:**
+
+```bash
+curl http://localhost:5002/compare
+```
+
+**Sample Output:**
+
+```json
+{
+  "comparison": {
+    "Baseline_LogisticRegression_cv_scores": [0.9, 0.95, 0.75, 0.75, 0.85],
+    "Baseline_LogisticRegression_mean_accuracy": 0.8400000000000001,
+    "EBM_cv_scores": [0.85, 0.8, 0.85, 0.75, 0.85],
+    "EBM_mean_accuracy": 0.82
+  }
+}
+```
+
+This comparison helps validate whether interpretable models offer competitive performance compared to standard baselines.
 
 ---
 
@@ -170,30 +175,31 @@ The **ALTrustworthyAI Application** powers AI risk assessment by:
 
 ## Prerequisites
 
-- **Internal Unit Testing:**  
-  Unit tests are defined in `test_app.py` to validate core functionalities (e.g., prediction and explanation).
-- **Test Environment Setup:**  
-  Use the native Python virtual environment (venv) as described in Stage 1.
-- **Supporting Files:**  
-  - Makefile and run_tests.sh for local test execution.
-  - Dockerfile/docker-compose.yml for containerized testing (if needed).
+- Internal unit testing is implemented in `test_app.py`.
+- Test environment setup uses virtualenv as in Stage 1.
+- Supporting files:
+  - `Makefile`
+  - `run_tests.sh`
+  - `Dockerfile`, `docker-compose.yml` for container-based testing (optional)
 
-## Commands to Run Tests
+## Running the Tests
 
-- **Using Makefile:**
+Using Makefile:
 
-  ```bash
-  make test
-  ```
+```bash
+make test
+```
 
-- **Direct Command:**
+Or directly:
 
-  ```bash
-  python -m unittest discover -s . -p "test_app.py"
-  ```
+```bash
+python -m unittest discover -s . -p "test_app.py"
+```
 
-## Test Execution Report / Summary
+## Test Execution Report
 
-[Functional testing / 3: Test execution - AffectLog](https://docs.google.com/document/d/1SOZA9vsB7mkRtE6MP53y43FE6DLxPCnfkRuR-eHF6rc/edit?usp=sharing) is the detailed report for the functional testing of the ALTrustworthyAI Application.
+Refer to the report for validation details:
+
+[Functional Testing – Test Execution](https://docs.google.com/document/d/1SOZA9vsB7mkRtE6MP53y43FE6DLxPCnfkRuR-eHF6rc/edit?usp=sharing)
 
 ---
