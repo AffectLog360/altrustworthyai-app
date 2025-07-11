@@ -1,0 +1,46 @@
+MIT License
+
+Copyright (c) 2024 AffectLog SAS
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the “Software”), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice, this permission notice, and the “Third-party
+notices” section below shall be included in all copies or substantial
+portions of the Software.
+
+THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+THE SOFTWARE.
+
+--------------------------------------------------------------------
+THIRD-PARTY NOTICES
+--------------------------------------------------------------------
+The Software statically or dynamically links against the open-source
+packages listed below.  Each package remains the copyright of its
+respective authors and is distributed to you under the licence shown.
+
+| Package (name @ version) | Licence (SPDX ID) | Upstream URL |
+|--------------------------|-------------------|--------------|
+| flask                    | BSD-3-Clause      | https://palletsprojects.com/p/flask/ |
+| numpy                    | BSD-3-Clause      | https://numpy.org/ |
+| pandas                   | BSD-3-Clause      | https://pandas.pydata.org/ |
+| scikit-learn             | BSD-3-Clause      | https://scikit-learn.org/ |
+| python-dotenv            | BSD-3-Clause      | https://github.com/theskumar/python-dotenv |
+| altrustworthyai          | MIT               | https://github.com/AffectLog360/altrustworthyai |
+| altrustworthyai-api*     | MIT (assumed)     | private/internal package |
+| interpret-core           | MIT               | https://github.com/interpretml/interpret |
+
+\* Internal helper that mirrors **altrustworthyai**’s MIT terms; no
+additional obligations apply.
+
+For full licence texts of the above components, see the `THIRD_PARTY_LICENSES/`
+directory in this repository.
