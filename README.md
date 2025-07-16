@@ -1,4 +1,4 @@
-**Note:** The development repository at https://github.com/AffectLog360/altrustworthyai-app has been moved and is no longer the primary source. All development and collaboration should now occur through the Prometheus-X repository.
+# **Note:** The development repository at https://github.com/AffectLog360/altrustworthyai-app has been moved and is no longer the primary source. All development and collaboration should now occur through the Prometheus-X repository.
 
 # ALTrustworthyAI Application Documentation
 
